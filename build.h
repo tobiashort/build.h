@@ -7,10 +7,10 @@ typedef struct Cmd {
   char *argv[ARGV_LEN];
 } Cmd;
 
-void build_yourself();
+int build_yourself();
 void cmd_append(Cmd *cmd, ...);
 void cmd_print(Cmd *cmd);
-void cmd_run(Cmd *cmd);
+int cmd_run(Cmd *cmd);
 
 #ifdef BUILD_IMPL
 
@@ -27,13 +27,13 @@ void cmd_run(Cmd *cmd);
   fprintf(stderr, "%s\n", msg); \
   exit(1)
 
-void build_yourself() {
+int build_yourself() {
   Cmd cmd = {0};
   cmd_append(&cmd, "cc", NULL);
   cmd_append(&cmd, "-Wall", "-Werror", NULL);
   cmd_append(&cmd, "-o", "build", NULL);
   cmd_append(&cmd, "build.c", NULL);
-  cmd_run(&cmd);
+  return cmd_run(&cmd);
 }
 
 void cmd_append(Cmd *cmd, ...) {
@@ -67,7 +67,7 @@ void cmd_print(Cmd *cmd) {
   printf("\n");
 }
 
-void cmd_run(Cmd *cmd) {
+int cmd_run(Cmd *cmd) {
   cmd_print(cmd);
 
   pid_t pid = fork();
@@ -83,6 +83,8 @@ void cmd_run(Cmd *cmd) {
 
   int status;
   waitpid(pid, &status, 0);
+
+  return status;
 }
 
 #endif // BUILD_IMPL
