@@ -19,6 +19,7 @@ int cmd_run(Cmd *cmd);
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <sys/stat.h>
 #include <sys/types.h>
 #include <sys/wait.h>
 #include <unistd.h>
@@ -27,13 +28,42 @@ int cmd_run(Cmd *cmd);
   fprintf(stderr, "%s\n", msg); \
   exit(1)
 
+static bool has_changed() {
+  struct stat source = {0};
+  struct stat binary = {0};
+
+  if (stat("build.c", &source) < 0) {
+    perror("could not stat build.c");
+    exit(1);
+  };
+
+  if (stat("build", &binary) < 0) {
+    perror("could not stat build.c");
+    exit(1);
+  };
+
+  printf("build:   mtime: %ld\n", binary.st_mtime);
+  printf("build.c: mtime: %ld --> ", source.st_mtime);
+  bool changed = source.st_mtime > binary.st_mtime;
+  changed ? printf("changed\n") : printf("no changes\n");
+  return changed;
+}
+
 int build_yourself() {
+  if (!has_changed()) {
+    return 0;
+  }
   Cmd cmd = {0};
   cmd_append(&cmd, "cc", NULL);
   cmd_append(&cmd, "-Wall", "-Werror", NULL);
   cmd_append(&cmd, "-o", "build", NULL);
   cmd_append(&cmd, "build.c", NULL);
-  return cmd_run(&cmd);
+  int status = cmd_run(&cmd);
+  if (status != 0) {
+    return status;
+  }
+  execvp("./build", NULL);
+  panic("unreachable");
 }
 
 void cmd_append(Cmd *cmd, ...) {
