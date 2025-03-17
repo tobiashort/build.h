@@ -7,7 +7,7 @@ typedef struct Cmd {
   char *argv[ARGV_LEN];
 } Cmd;
 
-int build_yourself();
+int build_yourself(void);
 void cmd_append(Cmd *cmd, ...);
 void cmd_print(Cmd *cmd);
 int cmd_run(Cmd *cmd);
@@ -28,7 +28,7 @@ int cmd_run(Cmd *cmd);
   fprintf(stderr, "%s\n", msg); \
   exit(1)
 
-static bool has_changed() {
+static bool has_changed(void) {
   struct stat source = {0};
   struct stat binary = {0};
 
@@ -49,7 +49,7 @@ static bool has_changed() {
   return changed;
 }
 
-int build_yourself() {
+int build_yourself(void) {
   if (!has_changed()) {
     return 0;
   }
