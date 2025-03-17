@@ -1,10 +1,10 @@
 #ifndef BUILD_H
 #define BUILD_H
 
-#define ARGV_LEN 64
+#define ARGV_MAX 64
 
 typedef struct Cmd {
-  char *argv[ARGV_LEN];
+  char *argv[ARGV_MAX];
 } Cmd;
 
 int build_yourself(void);
@@ -74,7 +74,7 @@ void cmd_append(Cmd *cmd, ...) {
     if (arg == NULL) {
       return;
     }
-    for (int i = 0; i < ARGV_LEN; i++) {
+    for (int i = 0; i < ARGV_MAX; i++) {
       if (cmd->argv[i] == NULL) {
         cmd->argv[i] = arg;
         goto next_arg;
@@ -88,7 +88,7 @@ next_arg:
 
 void cmd_print(Cmd *cmd) {
   printf("%s", cmd->argv[0]);
-  for(int i = 1; i < ARGV_LEN; i++) {
+  for(int i = 1; i < ARGV_MAX; i++) {
     if (cmd->argv[i] == NULL) {
       break;
     }
